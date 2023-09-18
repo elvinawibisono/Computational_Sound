@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Lab1</title>
+    </head>
+
+    <body>
+        <p>Select a waveform:</p>
+        <select name="waveform" id="waveform">
+            <option value = "sine" selected >sine</option>
+            <option value ="sawtooth">sawtooth</option>
+            <option value="square">square</option>
+            <option value="triangle">triangle</option>
+        </select>
+
+        <div id ="visual-feedback"></div>
+        <div id ="circle"></div>
+        <style>
+            #visual-feedback{
+                width:50px;
+                height: 50px;
+                background-color: transparent;
+                border-radius: 50%;
+                top:10px; 
+                left:10px; 
+                transition: transform 1s ease-out; 
+                pointer-events: none; 
+            }
+
+            #circle{
+                width: 0; /* Start with a width of 0 */
+                height: 0; /* Start with a height of 0 */
+                background-color:transparent; /* Change the background color as desired */
+                border-radius: 50%; /* Make it a circle */
+                position: absolute; /* Use absolute positioning for overlay */
+            }
+
+            
+        </style>
+        
+    </body>
+    <script src ="main.js"></script>
+</html>
