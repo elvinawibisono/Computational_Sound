@@ -10,19 +10,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     const synthesisType = document.getElementById('synthesis');
     var modFreq = document.getElementById('modulationFrequency'); 
     var modIndex = document.getElementById('modulationIndex'); 
-    var activeBase = {}; 
-    var activebases = {};
-    var baseGains = {};
-    let activeAMSynthesis = {}; 
-    let activeFMSynthesis = {};
-    let activeAdditive = {}; 
-
+   
     function updateModFreq(val) {
-        modFreqVal = val
+        modFreqVal = val;
     };
 
     function updateIndex(val) {
-        modIndexVal = val
+        modIndexVal = val;
     };
 
     function updateLFO(val){
@@ -273,8 +267,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         console.log("synth: ", selectedSynthesisType); 
 
-
-       
         if (activeOscillators[key]) {
             releaseNote(key);
             
@@ -304,12 +296,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
 
-
-
     }
 
     
-
-
-
 })
