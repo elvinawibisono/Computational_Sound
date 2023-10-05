@@ -1,3 +1,6 @@
+var modFreqVal = 100;
+var lfoFreqVal = 0;
+var modIndexVal = 100;
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
@@ -8,12 +11,23 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var modFreq = document.getElementById('modulationFrequency'); 
     var modIndex = document.getElementById('modulationIndex'); 
     var activeBase = {}; 
-    var activeGainNode = {}
     var activebases = {};
     var baseGains = {};
     let activeAMSynthesis = {}; 
     let activeFMSynthesis = {};
     let activeAdditive = {}; 
+
+    function updateModFreq(val) {
+        modFreqVal = val
+    };
+
+    function updateIndex(val) {
+        modIndexVal = val
+    };
+
+    function updateLFO(val){
+        lfoFreqVal = val;
+    };
 
     const keyboardFrequencyMap = {
         '90': 261.625565300598634,  //Z - C
@@ -46,18 +60,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     window.addEventListener('keyup', keyUp, false);
 
     
-
-    
-
-    
-
-   
-
     var compressor = audioCtx.createDynamicsCompressor();
     compressor.threshold.setValueAtTime(-50, audioCtx.currentTime);
 
     const activeOscillators = {};
-    const upGainNodes = {};
+    const activeGainNode = {};
 
     function keyDown(event) {
         const key = (event.detail || event.which).toString();
@@ -80,15 +87,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
         console.log("Releasing note:", key);
-        const activeOsc = activeOscillators[key];
-        const activeGainNodes = activeGainNode[key];
+        // const activeOsc = activeOscillators[key];
+        // const activeGainNodes = activeGainNode[key];
 
         const releaseTime = audioCtx.currentTime + 0.1; 
 
         activeGainNode[key].forEach(function(element) {
             element.gain.cancelScheduledValues(audioCtx.currentTime);
             element.gain.setValueAtTime(element.gain.value, audioCtx.currentTime); // Set the current gain value
-            element.gain.linearRampToValueAtTime(0.00001, audioCtx.currentTime + 0.05); // Release 
+            // element.gain.linearRampToValueAtTime(0.00001, audioCtx.currentTime + 0.05); // Release 
+            element.gain.exponentialRampToValueAtTime(0.001, releaseTime); 
+            // element.gain.setTargetAtTime(0.001,audioCtx.currentTime,0.01);
         }); 
 
         setTimeout(function(){
@@ -97,14 +106,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
             });
         
             activeOscillators[key].forEach(function(element) {
-                element.stop();
+                element.stop(releaseTime);
             });
 
-            delete activeGainNodes[key];
+            delete activeGainNode[key];
             delete activeOscillators[key];
-        }, 70);
+        }, 100);
 
-    
+        
 
     }
 
@@ -147,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   
         }
     
-        base.connect(gainNode);
+        base.connect(gainNode); 
         gainNode.connect(audioCtx.destination);
         base.start();
         
@@ -175,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         modulated.gain.value = 1.0 - depth.gain.value
 
         modulatorFreq.connect(depth).connect(modulated.gain); 
-        carrier.connect(modulated)
+        carrier.connect(modulated);
         modulated.connect(audioCtx.destination);
 
         carrier.start();
@@ -214,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var modulatorFreq = audioCtx.createOscillator();
         carrier.frequency.setValueAtTime(keyboardFrequencyMap[key], audioCtx.currentTime); 
     
-        modulationIndex = audioCtx.createGain();
+        var modulationIndex = audioCtx.createGain();
         var gainNode = audioCtx.createGain();
         gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime)
        
@@ -224,50 +233,40 @@ document.addEventListener("DOMContentLoaded", function(event) {
         modulatorFreq.connect(modulationIndex);
         modulationIndex.connect(carrier.frequency)
         
-        carrier.connect(gainNode);
-        carrier.connect(compressor);
-        carrier.connect(audioCtx.destination);
-    
+        carrier.connect(gainNode).connect(compressor).connect(audioCtx.destination);
+
         carrier.start();
         modulatorFreq.start();
 
- 
-
-     
-
-        const lfo = audioCtx.createOscillator();
-        const lfoGain = audioCtx.createGain();
-       
-
         if (lfoFreq > 0) {
            
-
-            lfo.frequency.setValueAtTime(lfoFreq, audioCtx.currentTime);
-            lfoGain.gain.value = 5; 
-            lfo.connect(lfoGain); 
-            lfo.connect(modulatorFreq.frequency);
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
+            lfo.frequency.value = lfoFreq; 
+            lfoGain.gain.value = 8; 
+            lfo.connect(lfoGain).connect(modulatorFreq.frequency);
             lfo.start();
-            // activeOscillators[key] = [lfo];
-            // activeGainNode[key] = [lfoGain];
+         
+            activeOscillators[key] = [carrier, modulatorFreq, lfo];
+            activeGainNode[key] = [modulationIndex, gainNode, lfoGain];
 
            
+        } else{
+
+            activeOscillators[key] = [carrier, modulatorFreq];
+            activeGainNode[key] = [modulationIndex, gainNode];
+
         }
 
-        activeOscillators[key] = [modulatorFreq, carrier,lfo];
-        activeGainNode[key] = [modulationIndex, gainNode,lfoGain];
-
-        
-
-
-
+    
         Object.keys(activeGainNode).forEach((key) => {
             for (var i = 0; i < activeGainNode[key].length; i++) {
-                activeGainNode[key][i].gain.setTargetAtTime(0.5 / (Object.keys(activeGainNode).length + (2 * Object.keys(activeGainNode).length)), audioCtx.currentTime, 0.2)
+                activeGainNode[key][i].gain.setTargetAtTime(0.7/ (Object.keys(activeGainNode).length + (2 * Object.keys(activeGainNode).length)), audioCtx.currentTime, 0.2)
             }
         })
+ 
 
     }
-
 
     function playNote(key){
         var selectedSynthesisType = synthesisType.value; 
@@ -290,15 +289,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         else if (selectedSynthesisType == "AM"){
-            const modFreqVal = parseFloat(modFreq.value) || 0.5
+            const modFreqVal = parseFloat(modFreq.value) || 0.5;
             const lfoFreq = parseFloat(lfoFreqInput.value) || 0.5;
             playAM(key, modFreqVal,lfoFreq); 
         }
 
         else if(selectedSynthesisType == "FM"){
-            const modFreqVal = parseFloat(modFreq.value) || 0.5
+            const modFreqVal = parseFloat(modFreq.value) || 0.5;
             const lfoFreq = parseFloat(lfoFreqInput.value) || 0.5;
-            const modIndexVal = parseFloat(modIndex.value) || 0.5
+            const modIndexVal = parseFloat(modIndex.value) || 0.5;
             playFM(key, modIndexVal, modFreqVal, lfoFreq); 
 
 
@@ -308,6 +307,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     }
+
+    
 
 
 
