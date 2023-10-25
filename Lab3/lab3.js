@@ -104,160 +104,67 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // {RHPF.ar(LPF.ar(BrownNoise.ar(), 400), LPF.ar(BrownNoise.ar(), 14) * 400 + 500, 0.03, 0.1)}.play
 
     function createWindSound() {
-
-
         const bufferSize = audioCtx.sampleRate * 5;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
             output[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize);
         }
-        
+
         // Create the noise source
         const noiseSource = audioCtx.createBufferSource();
         noiseSource.buffer = noiseBuffer;
         noiseSource.loop = true;
-        
+
         // Create the crackling sound
         const crackleOscillator = audioCtx.createOscillator();
         crackleOscillator.type = 'sawtooth';
-        // crackleOscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        function triggerCrackling() {
-            const randomDuration = 0.02 + Math.random() * 0.03;
-            crackleOscillator.frequency.setValueAtTime(1 / randomDuration, audioCtx.currentTime);
-    
-            const startTime = audioCtx.currentTime;
-            noiseSource.start(startTime);
-            crackleOscillator.start(startTime);
-    
-            // Turn off crackling after the duration
-            setTimeout(() => {
-                noiseSource.stop();
-                crackleOscillator.stop();
-                // Trigger the next crackling event
-                triggerCrackling();
-            }, randomDuration * 1000);
-        }
-    
-        
+
+        // Adjust the frequency and gain for crackling sound
+        crackleOscillator.frequency.setValueAtTime(2000, audioCtx.currentTime);
         const crackleGain = audioCtx.createGain();
-        crackleGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-        
-        // Create the lapping sound
+        crackleGain.gain.setValueAtTime(0.005, audioCtx.currentTime);
+
+        // Create the lapping sound (you can keep this as it is)
         const lappingOscillator = audioCtx.createOscillator();
         lappingOscillator.type = 'sine';
         lappingOscillator.frequency.setValueAtTime(10, audioCtx.currentTime);
-        
         const lappingGain = audioCtx.createGain();
         lappingGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        
-        // Create the hissing sound
+
+        // Create the hissing sound (you can keep this as it is)
         const hissingOscillator = audioCtx.createOscillator();
         hissingOscillator.type = 'sine';
         hissingOscillator.frequency.setValueAtTime(5, audioCtx.currentTime);
-        
         const hissingGain = audioCtx.createGain();
         hissingGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-        
+
         // Create the output gain
         const outputGain = audioCtx.createGain();
         outputGain.gain.value = 0.4; // Adjust the gain for the desired overall volume
-        
+
         // Connect audio nodes
         noiseSource.connect(outputGain);
         crackleOscillator.connect(crackleGain);
         lappingOscillator.connect(lappingGain);
         hissingOscillator.connect(hissingGain);
-        
+
         crackleGain.connect(outputGain);
         lappingGain.connect(outputGain);
         hissingGain.connect(outputGain);
-        
+
         outputGain.connect(audioCtx.destination);
 
-        triggerCrackling();
-        
         // Start all the sound sources
         noiseSource.start(0);
         crackleOscillator.start(0);
         lappingOscillator.start(0);
         hissingOscillator.start(0);
 
-
-        // const bufferSize = audioCtx.sampleRate * 5;
-        // const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        // const output = noiseBuffer.getChannelData(0);
-        
-        // let lastOut = 0;
-        
-        // // Generate fire crackling noise
-        // for (let i = 0; i < bufferSize; i++) {
-        //     const brown = Math.random() * 2 - 1;
-        //     output[i] = (lastOut + (0.02 * brown)) / 1.02;
-        //     lastOut = output[i];
-        //     output[i] *= 3.5;
-        // }
-        
-        // // Create filters
-        // const highpassFilter = audioCtx.createBiquadFilter();
-        // highpassFilter.type = 'highpass';
-        // highpassFilter.frequency.value = 1000; // Adjust this value for different effects
-        
-        // const lowpassFilter = audioCtx.createBiquadFilter();
-        // lowpassFilter.type = 'lowpass';
-        // lowpassFilter.frequency.value = 4000; // Adjust this value for different effects
-        
-        // // Create an oscillator for added crackle
-        // const crackleOscillator = audioCtx.createOscillator();
-        // crackleOscillator.type = 'sawtooth';
-        // crackleOscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        
-        // const crackleGain = audioCtx.createGain();
-        // crackleGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        
-        // crackleOscillator.connect(crackleGain);
-        // crackleGain.connect(audioCtx.destination);
-        
-        // crackleOscillator.start(0);
-        
-        // // Create audio nodes
-        // const noiseSource = audioCtx.createBufferSource();
-        // noiseSource.buffer = noiseBuffer;
-        // noiseSource.loop = true;
-        // noiseSource.start(0);
-        
-        // const outputGain = audioCtx.createGain();
-        // outputGain.gain.value = 0.3; // Adjust the gain for desired volume
-        
-        // // Connect the audio nodes
-        // noiseSource.connect(lowpassFilter);
-        // noiseSource.connect(highpassFilter);
-        
-        // crackleGain.connect(outputGain);
-        
-        // highpassFilter.connect(outputGain);
-        // lowpassFilter.connect(outputGain);
-        
-        // outputGain.connect(audioCtx.destination);
-        
-        // //Add variation in crackling sound with a random interval
-        // // const applyCrackleVariation = () => {
-        // //     const variation = Math.random() * 0.3 + 0.2; // Adjust the range for more subtle variations
-        // //     crackleGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        // //     crackleGain.gain.linearRampToValueAtTime(variation, audioCtx.currentTime + 0.02); // Adjust the time for shorter bursts
-        // //     const nextVariationTime = 0.02 + Math.random() * 0.05; // Adjust timing as needed
-        // //     setTimeout(() => {
-        // //         crackleGain.gain.setValueAtTime(variation, audioCtx.currentTime);
-        // //         crackleGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.02);
-        // //         setTimeout(applyCrackleVariation, nextVariationTime * 1000);
-        // //     }, (0.02 + nextVariationTime) * 1000); // Delay the decay of each burst
-        // // };
-        
-        // // applyCrackleVariation();
-
-        return noiseSource; 
+        return noiseSource;
 
       }
+
     
       let windSoundNode = null;
     
