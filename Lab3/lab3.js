@@ -1,10 +1,9 @@
+//Collaborated with : Luci Feinberg, Elifia Muthia, and Pru Yontrarak
 document.addEventListener("DOMContentLoaded", function(event) {
 
     var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let brownNoiseNodes = null;
     
-
-    // me and luci feinberg x
     function createBubbling(){
             
         // Create a brown noise buffer
@@ -212,21 +211,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
             cracklingInterval = setTimeout(triggerRandomCracklingSound, randomInterval);
         }
 
-        // cracklingInterval2 = null; 
-
-        // function triggerRandomCracklingSound2(){
-
-        //     const randomInterval = Math.random() * 5000 + 500; // Random interval between 500ms and 5500ms
-        //     createFireCrack(); 
-        //     gainNode.gain.setValueAtTime(Math.random() * 0.025, audioCtx1.currentTime);
-       
-        //     cracklingInterval2 = setTimeout(triggerRandomCracklingSound, randomInterval);
-        // }
-
+   
         triggerRandomCracklingSound();
-        // triggerRandomCracklingSound2();
-
-        // console.log("crack2: ", cracklingInterval); 
+  
 
         sourceNoise.start(0);
         sourceNoise2.start(0);
