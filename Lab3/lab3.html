@@ -30,18 +30,18 @@
         <br>
         Creating the Fire Crackles: 
         <ol>
-            <li>Audio Context Initialization: In this step, I create a new seperate Audio Contex using 'window.AudioContext' or 'window.webkitAudioContext' for Part 2. </li>
             <li>Fire Crackle Function: I created a seperate function for Crackle , because I found it would be easier to manage the Crackle sound as this part is the most complicated to 
                 create during the whole process in coding the Fire Sound. The algorithm inside this function creates a buffer filled with random noise. 
                 The noise is shaped in such a way that it diminishes over time, mimicking the real-world characteristics of a fire crackle. 
                 I also added some variation in the loudness of each crackle to make it more natural.
             </li>
-            <li> Gain Control: A gain node controls the loudness of each crackle.
-                 It's set to a random value, giving each crackle its unique intensity.
+            <li>Audio Context Initialization: In this step, I create a new seperate Audio Contex using 'window.AudioContext' or 'window.webkitAudioContext' for Part 2. </li>
+            <li>Buffer Generation: I start by calculating the duration of each crackle (0.05 seconds) and the sample rate of the Audio Context. This information allows me to create a buffer for the crackle sound.</li>
+            <li>Noise Shaping: Fire crackles exhibit a unique character where the intensity diminishes over time. To recreate this effect, I shaped random noise using the formula (Math.random() * 2 - 1) * Math.exp(-i / numFrames * 10).</li>
+            <li> Gain Control: For added realism, I introduced variation in the loudness of each crackle. A random gain value between 0 and 0.5 is applied to each crackle.
             </li>
-            <li> Buffer Source and Playback: I used a buffer source to play back the generated crackle. It's connected to the gain node and, subsequently, to the audio context's destination.
-                 Each crackle has a short duration and fades out after a brief moment.
-
+            <li> Buffer Source and Playback: The crackles are played using a buffer source connected to a gain node, which, in turn, is routed to the Audio Context's destination. 
+                These crackles are short-lived, lasting only for a fraction of a second, creating an intermittent and dynamic fire sound.
             </li>
            
         </ol>

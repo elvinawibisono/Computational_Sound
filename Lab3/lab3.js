@@ -294,18 +294,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             console.log("stop");
         }
     }
-    
-    // function stopFireSound()  {
-    //     if (audioCtx1.state === "running") {
-    //         // stopFireSound(fireSoundNodes);
-    //         fireSoundNodes.stop();
-    //         fireSoundNodes = null;
-    //         console.log("stop");
-    //     }
-    // }
-    
-    
-    
+        
     const playButton3 = document.getElementById("playButton0");
     const stopButton3 = document.getElementById("stopButton0");
 
