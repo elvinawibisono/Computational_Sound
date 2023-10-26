@@ -127,6 +127,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
   
+    let cracklingInterval = null;
+    // let cracklingInterval2 = null; 
 
     function createFireSound() {
 
@@ -193,11 +195,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
         const flameNode = audioCtx1.createGain();
         flameNode.gain.value = 100;
+
+
+        console.log("crack: ", cracklingInterval); 
+        cracklingInterval = null; 
     
 
         function triggerRandomCracklingSound(){
 
-            let cracklingInterval = null;
+           
             const randomInterval = Math.random() * 1000 + 500; // Random interval between 500ms and 5500ms
             createFireCrack(); // Call your createFireCrack function
             gainNode.gain.setValueAtTime(Math.random() * 0.08, audioCtx1.currentTime);
@@ -206,18 +212,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
             cracklingInterval = setTimeout(triggerRandomCracklingSound, randomInterval);
         }
 
-        function triggerRandomCracklingSound2(){
+        // cracklingInterval2 = null; 
 
-            let cracklingInterval = null;
-            const randomInterval = Math.random() * 5000 + 500; // Random interval between 500ms and 5500ms
-            createFireCrack(); 
-            gainNode.gain.setValueAtTime(Math.random() * 0.025, audioCtx1.currentTime);
+        // function triggerRandomCracklingSound2(){
+
+        //     const randomInterval = Math.random() * 5000 + 500; // Random interval between 500ms and 5500ms
+        //     createFireCrack(); 
+        //     gainNode.gain.setValueAtTime(Math.random() * 0.025, audioCtx1.currentTime);
        
-            cracklingInterval = setTimeout(triggerRandomCracklingSound, randomInterval);
-        }
+        //     cracklingInterval2 = setTimeout(triggerRandomCracklingSound, randomInterval);
+        // }
 
         triggerRandomCracklingSound();
-        triggerRandomCracklingSound2();
+        // triggerRandomCracklingSound2();
+
+        // console.log("crack2: ", cracklingInterval); 
 
         sourceNoise.start(0);
         sourceNoise2.start(0);
@@ -240,31 +249,72 @@ document.addEventListener("DOMContentLoaded", function(event) {
         gainNode.connect(hissingNode.gain);
         hissingNode.connect(hissingNode2).connect(audioCtx1.destination);
 
+        return {sourceNoise, sourceNoise2, crackleOsc1, crackleOsc2}; 
+
     }
     
     let fireSoundNodes = null; 
- 
+
     function playFireSound() {
         if (audioCtx1.state === "suspended") {
             audioCtx1.resume().then(() => {
                 fireSoundNodes = createFireSound();
                 console.log("play");
             });
-        } else if (audioCtx1.state === "running") {
-            // stopFireSound(fireSoundNodes);
+        } else if (audioCtx1.state === "running" && fireSoundNodes === null) {
             fireSoundNodes = createFireSound();
             console.log("play");
         }
     }
+ 
+    // function playFireSound() {
+    //     if (audioCtx1.state === "suspended") {
+    //         audioCtx1.resume().then(() => {
+    //             fireSoundNodes = createFireSound();
+    //             console.log("play");
+    //         });
+    //     } else if (audioCtx1.state === "running") {
+    //         // stopFireSound(fireSoundNodes);
+    //         fireSoundNodes = createFireSound();
+    //         console.log("play");
+    //     }
+    // }
+
+    function stopFireSound() {
+        if (audioCtx1.state === "running" && fireSoundNodes) {
+
+            console.log ("crack2: ", cracklingInterval)
+
+            clearInterval(cracklingInterval);
+            // clearInterval(cracklingInterval2); 
+            // Stop the audio nodes
+            fireSoundNodes.sourceNoise.stop();
+            fireSoundNodes.sourceNoise2.stop();
+            fireSoundNodes.crackleOsc1.stop();
+            fireSoundNodes.crackleOsc2.stop();
     
-    function stopFireSound()  {
-        if (audioCtx1.state === "running") {
-            // stopFireSound(fireSoundNodes);
-            fireSoundNodes.stop();
+            // Disconnect your nodes if necessary
+            fireSoundNodes.sourceNoise.disconnect();
+            fireSoundNodes.sourceNoise2.disconnect();
+            fireSoundNodes.crackleOsc1.disconnect();
+            fireSoundNodes.crackleOsc2.disconnect();
+
+            cracklingInterval = null;
+            // cracklingInterval2 = null;  
+    
             fireSoundNodes = null;
             console.log("stop");
         }
     }
+    
+    // function stopFireSound()  {
+    //     if (audioCtx1.state === "running") {
+    //         // stopFireSound(fireSoundNodes);
+    //         fireSoundNodes.stop();
+    //         fireSoundNodes = null;
+    //         console.log("stop");
+    //     }
+    // }
     
     
     
@@ -274,9 +324,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     playButton3.addEventListener("click", playFireSound);
     stopButton3.addEventListener("click", stopFireSound);
 
-    
-
-    
+       
 
 }); 
 
