@@ -102,92 +102,151 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     // {RHPF.ar(LPF.ar(BrownNoise.ar(), 400), LPF.ar(BrownNoise.ar(), 14) * 400 + 500, 0.03, 0.1)}.play
+    var audioCtx1= new (window.AudioContext || window.webkitAudioContext)();
 
     function createWindSound() {
-        const bufferSize = audioCtx.sampleRate * 5;
-        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const noiseBuffer = audioCtx1.createBuffer(1, audioCtx1.sampleRate * 5, audioCtx1.sampleRate);
         const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize);
+        for (let i = 0; i < noiseBuffer.length; i++) {
+            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / noiseBuffer.length);
         }
-
-        // Create the noise source
-        const noiseSource = audioCtx.createBufferSource();
+    
+        const noiseSource = audioCtx1.createBufferSource();
         noiseSource.buffer = noiseBuffer;
         noiseSource.loop = true;
-
+    
         // Create the crackling sound
-        const crackleOscillator = audioCtx.createOscillator();
-        crackleOscillator.type = 'sawtooth';
+        const crackleOscillator = audioCtx1.createOscillator();
+        crackleOscillator.type = 'square';
+        // const crackleGain = audioCtx.createGain();
 
-        // Adjust the frequency and gain for crackling sound
-        crackleOscillator.frequency.setValueAtTime(2000, audioCtx.currentTime);
-        const crackleGain = audioCtx.createGain();
-        crackleGain.gain.setValueAtTime(0.005, audioCtx.currentTime);
+        crackleOscillator.frequency.setValueAtTime(20000, audioCtx1.currentTime); // Experiment with the frequency
+        const crackleGain = audioCtx1.createGain();
+        crackleGain.gain.setValueAtTime(0.1, audioCtx1.currentTime); // Adjust the gain
 
-        // Create the lapping sound (you can keep this as it is)
-        const lappingOscillator = audioCtx.createOscillator();
+     
+
+        // Start the crackling sound
+        // crackleOscillator.start(0);
+    
+        // Create the lapping sound
+        const lappingOscillator = audioCtx1.createOscillator();
         lappingOscillator.type = 'sine';
-        lappingOscillator.frequency.setValueAtTime(10, audioCtx.currentTime);
-        const lappingGain = audioCtx.createGain();
-        lappingGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-
-        // Create the hissing sound (you can keep this as it is)
-        const hissingOscillator = audioCtx.createOscillator();
+        const lappingGain = audioCtx1.createGain();
+        lappingGain.gain.setValueAtTime(0.3, audioCtx1.currentTime);
+    
+        // Create the hissing sound
+        const hissingOscillator = audioCtx1.createOscillator();
         hissingOscillator.type = 'sine';
-        hissingOscillator.frequency.setValueAtTime(5, audioCtx.currentTime);
-        const hissingGain = audioCtx.createGain();
-        hissingGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+        const hissingGain = audioCtx1.createGain();
+        hissingGain.gain.setValueAtTime(0.2, audioCtx1.currentTime); 
+    
+        // Create the flames sound
+        const flamesOscillator = audioCtx1.createOscillator();
+        flamesOscillator.type = 'sine';
+        const flamesGain = audioCtx1.createGain();
+        flamesGain.gain.setValueAtTime(0.4, audioCtx1.currentTime); 
+    
+        const outputGain = audioCtx1.createGain();
+        outputGain.gain.value = 0.3; // Adjust the overall volume
 
-        // Create the output gain
-        const outputGain = audioCtx.createGain();
-        outputGain.gain.value = 0.4; // Adjust the gain for the desired overall volume
-
+      
+    
         // Connect audio nodes
         noiseSource.connect(outputGain);
         crackleOscillator.connect(crackleGain);
         lappingOscillator.connect(lappingGain);
         hissingOscillator.connect(hissingGain);
-
+        flamesOscillator.connect(flamesGain);
+        
         crackleGain.connect(outputGain);
         lappingGain.connect(outputGain);
         hissingGain.connect(outputGain);
-
-        outputGain.connect(audioCtx.destination);
-
-        // Start all the sound sources
+        flamesGain.connect(outputGain);
+    
+        outputGain.connect(audioCtx1.destination);
+    
+        // Start all sound sources
         noiseSource.start(0);
         crackleOscillator.start(0);
         lappingOscillator.start(0);
         hissingOscillator.start(0);
-
-        return noiseSource;
-
-      }
-
+        flamesOscillator.start(0);
     
-      let windSoundNode = null;
+        return {
+            noiseSource,
+            crackleOscillator,
+            lappingOscillator,
+            hissingOscillator,
+            flamesOscillator
+        };
     
-      function playWindSound() {
+
+    }
+
+    let fireSoundNodes = null; 
+
+    function stopFireSound(nodes) {
+        if (nodes) {
+            nodes.noiseSource.stop();
+            nodes.crackleOscillator.stop();
+            nodes.lappingOscillator.stop();
+            nodes.hissingOscillator.stop();
+            nodes.flamesOscillator.stop();
+        }
+    }
+
+    function playWindSound() {
         if (audioCtx.state === "suspended") {
             audioCtx.resume().then(() => {
-                windSoundNode=createWindSound();
+                fireSoundNodes = createWindSound();
                 console.log("play");
             });
         } else if (audioCtx.state === "running") {
-            windSoundNode= createWindSound();
+            stopFireSound(fireSoundNodes);
+            fireSoundNodes = createWindSound();
             console.log("play");
         }
-      }
+    }
     
-      function stopWindSound() {
-
+    function stopWindSound()  {
         if (audioCtx.state === "running") {
-            windSoundNode.stop();
-            windSoundNode = null;
+            stopFireSound(fireSoundNodes);
+            fireSoundNodes = null;
             console.log("stop");
         }
-      }
+    }
+    
+    // function releaseAudioNodes(nodes) {
+    //     if (nodes) {
+    //         nodes.noiseSource.stop();
+    //         nodes.crackleOscillator.stop();
+    //     }
+    // }
+
+    
+    //   let windSoundNodes = null;
+    
+    //   function playWindSound() {
+    //     if (audioCtx1.state === "suspended") {
+    //         audioCtx1.resume().then(() => {
+    //             windSoundNodes = createWindSound();
+    //             console.log("play");
+    //         });
+    //     } else if (audioCtx1.state === "running") {
+    //         releaseAudioNodes(windSoundNodes);
+    //         windSoundNodes = createWindSound();
+    //         console.log("play");
+    //     }
+    // }
+    
+    // function stopWindSound() {
+    //     if (audioCtx1.state === "running") {
+    //         releaseAudioNodes(windSoundNodes);
+    //         windSoundNodes = null;
+    //         console.log("stop");
+    //     }
+    //   }
     
       const playButton3 = document.getElementById("playButton0");
       const stopButton3 = document.getElementById("stopButton0");
