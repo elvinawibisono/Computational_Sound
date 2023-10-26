@@ -17,6 +17,37 @@
     <button id="playButton0">Play</button>
     <button id="stopButton0">Stop</button>
 
+    <h1>Blog</h1>
+
+    <p>For Part 2:
+        I originally planned to do a wind sound, however I changed my mind last minute and decide
+        to create a Fire sound instead. I chose to do a Fire Sound because due to the different components and layering of different sound to create a 
+        fire sound , I found very interesting. 
+        <br>
+        <br>
+        This project used WebAudio to generate and create sounds. I have two functions in creating the Fire Sound: Creating the Crackle Function  and the Overall Fire Sound Function 
+        <br>
+        <br>
+        Creating the Fire Crackles: 
+        <ol>
+            <li>Audio Context Initialization: In this step, I create a new seperate Audio Contex using 'window.AudioContext' or 'window.webkitAudioContext' for Part 2. </li>
+            <li>Fire Crackle Function: I created a seperate function for Crackle , because I found it would be easier to manage the Crackle sound as this part is the most complicated to 
+                create during the whole process in coding the Fire Sound. The algorithm inside this function creates a buffer filled with random noise. 
+                The noise is shaped in such a way that it diminishes over time, mimicking the real-world characteristics of a fire crackle. 
+                I also added some variation in the loudness of each crackle to make it more natural.
+            </li>
+            <li> Gain Control: A gain node controls the loudness of each crackle.
+                 It's set to a random value, giving each crackle its unique intensity.
+            </li>
+            <li> Buffer Source and Playback: I used a buffer source to play back the generated crackle. It's connected to the gain node and, subsequently, to the audio context's destination.
+                 Each crackle has a short duration and fades out after a brief moment.
+
+            </li>
+           
+        </ol>
+
+    </p>
+
 </body>
 <script src ="lab3.js"></script>
 </html>

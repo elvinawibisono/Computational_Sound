@@ -267,19 +267,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
  
-    // function playFireSound() {
-    //     if (audioCtx1.state === "suspended") {
-    //         audioCtx1.resume().then(() => {
-    //             fireSoundNodes = createFireSound();
-    //             console.log("play");
-    //         });
-    //     } else if (audioCtx1.state === "running") {
-    //         // stopFireSound(fireSoundNodes);
-    //         fireSoundNodes = createFireSound();
-    //         console.log("play");
-    //     }
-    // }
-
+  
     function stopFireSound() {
         if (audioCtx1.state === "running" && fireSoundNodes) {
 
