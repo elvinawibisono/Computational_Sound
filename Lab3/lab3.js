@@ -104,222 +104,185 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // {RHPF.ar(LPF.ar(BrownNoise.ar(), 400), LPF.ar(BrownNoise.ar(), 14) * 400 + 500, 0.03, 0.1)}.play
     var audioCtx1= new (window.AudioContext || window.webkitAudioContext)();
 
-    function createWindSound() {
-        const noiseBuffer = audioCtx1.createBuffer(1, audioCtx1.sampleRate * 5, audioCtx1.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseBuffer.length; i++) {
-            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / noiseBuffer.length);
+    function createFireCrack() {
+        const duration = 0.05;
+        const sampleRate = audioCtx1.sampleRate;
+        const numFrames = duration * sampleRate;
+        const buffer = audioCtx1.createBuffer(1, numFrames, sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < numFrames; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / numFrames * 10);
         }
+        const gainNode = audioCtx1.createGain();
+        gainNode.gain.setValueAtTime(Math.random() * 0.5, audioCtx1.currentTime);
     
-        const noiseSource = audioCtx1.createBufferSource();
-        noiseSource.buffer = noiseBuffer;
-        noiseSource.loop = true;
+        const bufferSource = audioCtx1.createBufferSource();
+        bufferSource.buffer = buffer;
     
-        // Create the crackling sound
-        const crackleOscillator = audioCtx1.createOscillator();
-        crackleOscillator.type = 'square';
-        // const crackleGain = audioCtx.createGain();
+        bufferSource.connect(gainNode);
+        gainNode.connect(audioCtx1.destination);
+    
+        bufferSource.start();
+        bufferSource.stop(audioCtx1.currentTime + 1);
+    }
 
-        crackleOscillator.frequency.setValueAtTime(20000, audioCtx1.currentTime); // Experiment with the frequency
-        const crackleGain = audioCtx1.createGain();
-        crackleGain.gain.setValueAtTime(0.1, audioCtx1.currentTime); // Adjust the gain
+  
 
-     
+    function createFireSound() {
 
-        // Start the crackling sound
-        // crackleOscillator.start(0);
-    
-        // Create the lapping sound
-        const lappingOscillator = audioCtx1.createOscillator();
-        lappingOscillator.type = 'sine';
-        const lappingGain = audioCtx1.createGain();
-        lappingGain.gain.setValueAtTime(0.3, audioCtx1.currentTime);
-    
-        // Create the hissing sound
-        const hissingOscillator = audioCtx1.createOscillator();
-        hissingOscillator.type = 'sine';
-        const hissingGain = audioCtx1.createGain();
-        hissingGain.gain.setValueAtTime(0.2, audioCtx1.currentTime); 
-    
-        // Create the flames sound
-        const flamesOscillator = audioCtx1.createOscillator();
-        flamesOscillator.type = 'sine';
-        const flamesGain = audioCtx1.createGain();
-        flamesGain.gain.setValueAtTime(0.4, audioCtx1.currentTime); 
-    
-        const outputGain = audioCtx1.createGain();
-        outputGain.gain.value = 0.3; // Adjust the overall volume
-
-      
-    
-        // Connect audio nodes
-        noiseSource.connect(outputGain);
-        crackleOscillator.connect(crackleGain);
-        lappingOscillator.connect(lappingGain);
-        hissingOscillator.connect(hissingGain);
-        flamesOscillator.connect(flamesGain);
+        var bufferSize = 10 * audioCtx1.sampleRate;
+        var noiseBuffer = audioCtx1.createBuffer(1, bufferSize, audioCtx1.sampleRate);
+        var output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * 0.5;
+        }
         
-        crackleGain.connect(outputGain);
-        lappingGain.connect(outputGain);
-        hissingGain.connect(outputGain);
-        flamesGain.connect(outputGain);
-    
-        outputGain.connect(audioCtx1.destination);
-    
-        // Start all sound sources
-        noiseSource.start(0);
-        crackleOscillator.start(0);
-        lappingOscillator.start(0);
-        hissingOscillator.start(0);
-        flamesOscillator.start(0);
-    
-        return {
-            noiseSource,
-            crackleOscillator,
-            lappingOscillator,
-            hissingOscillator,
-            flamesOscillator
-        };
-    
-
-    }
-
-    let fireSoundNodes = null; 
-
-    function stopFireSound(nodes) {
-        if (nodes) {
-            nodes.noiseSource.stop();
-            nodes.crackleOscillator.stop();
-            nodes.lappingOscillator.stop();
-            nodes.hissingOscillator.stop();
-            nodes.flamesOscillator.stop();
+        var sourceNoise = audioCtx1.createBufferSource();
+        sourceNoise.buffer = noiseBuffer;
+        sourceNoise.loop = true;
+        
+        // Create white noise 2 buffer and source
+        var noiseBuffer2 = audioCtx1.createBuffer(1, bufferSize, audioCtx1.sampleRate);
+        var output2 = noiseBuffer2.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            output2[i] = (Math.random() * 2 - 1) * 0.5;
         }
-    }
 
-    function playWindSound() {
-        if (audioCtx.state === "suspended") {
-            audioCtx.resume().then(() => {
-                fireSoundNodes = createWindSound();
+
+        var sourceNoise2 = audioCtx1.createBufferSource();
+        sourceNoise2.buffer = noiseBuffer2;
+        sourceNoise2.loop = true;
+       
+        var gainNode = audioCtx1.createGain();
+        var hissingNode = audioCtx1.createGain();
+        var hissingNode2 = audioCtx1.createGain();
+        hissingNode2.gain.value = 0.0025;
+    
+        var crackleOsc2 = audioCtx1.createOscillator();
+        crackleOsc2.type = "sine";
+        crackleOsc2.frequency.value = 0.5;
+        var crackleOsc1 = audioCtx1.createOscillator();
+        crackleOsc1.type = "triangle";
+        crackleOsc1.frequency.value = 0.7;
+        
+        var filter1 = audioCtx1.createBiquadFilter();
+        filter1.type = 'lowpass';
+        filter1.frequency.value = 0.9;
+        var filter2 = audioCtx1.createBiquadFilter();
+        filter2.type = 'highpass';
+        filter2.frequency.value = 1500;
+
+        const lappingSound = audioCtx1.createBiquadFilter();
+        lappingSound.type = "bandpass";
+        lappingSound.frequency.value = 50;
+        lappingSound.Q.value = 15;
+    
+        const lappingSound2 = audioCtx1.createBiquadFilter();
+        lappingSound2.type = 'highpass';
+        lappingSound2.frequency.value = 40;
+    
+        const flameSound = audioCtx1.createWaveShaper();
+        var distortion = new Float32Array(2);
+        distortion[0] = -0.5;
+        distortion[1] = 0.5;
+        flameSound.curve = distortion;
+    
+        const flameSound2 = audioCtx1.createBiquadFilter();
+        flameSound2.type = 'highpass';
+        flameSound2.frequency.value = 10;
+    
+        const flameNode = audioCtx1.createGain();
+        flameNode.gain.value = 100;
+    
+
+        function triggerRandomCracklingSound(){
+
+            let cracklingInterval = null;
+            const randomInterval = Math.random() * 1000 + 500; // Random interval between 500ms and 5500ms
+            createFireCrack(); // Call your createFireCrack function
+            gainNode.gain.setValueAtTime(Math.random() * 0.08, audioCtx1.currentTime);
+            console.log(gainNode.gain.value)
+ 
+            cracklingInterval = setTimeout(triggerRandomCracklingSound, randomInterval);
+        }
+
+        function triggerRandomCracklingSound2(){
+
+            let cracklingInterval = null;
+            const randomInterval = Math.random() * 5000 + 500; // Random interval between 500ms and 5500ms
+            createFireCrack(); 
+            gainNode.gain.setValueAtTime(Math.random() * 0.025, audioCtx1.currentTime);
+       
+            cracklingInterval = setTimeout(triggerRandomCracklingSound, randomInterval);
+        }
+
+        triggerRandomCracklingSound();
+        triggerRandomCracklingSound2();
+
+        sourceNoise.start(0);
+        sourceNoise2.start(0);
+        crackleOsc1.start();
+        crackleOsc2.start();
+
+        sourceNoise.connect(lappingSound)
+        .connect(lappingSound2)
+        .connect(flameSound)
+        .connect(flameSound2)
+        .connect(flameNode)
+        .connect(audioCtx1.destination);
+
+        sourceNoise.connect(filter2)
+        filter2.connect(hissingNode);
+        sourceNoise2.connect(filter1)
+        filter1.connect(hissingNode);
+        crackleOsc2.connect(gainNode);
+        crackleOsc1.connect(gainNode.gain);
+        gainNode.connect(hissingNode.gain);
+        hissingNode.connect(hissingNode2).connect(audioCtx1.destination);
+
+    }
+    
+    let fireSoundNodes = null; 
+ 
+    function playFireSound() {
+        if (audioCtx1.state === "suspended") {
+            audioCtx1.resume().then(() => {
+                fireSoundNodes = createFireSound();
                 console.log("play");
             });
-        } else if (audioCtx.state === "running") {
-            stopFireSound(fireSoundNodes);
-            fireSoundNodes = createWindSound();
+        } else if (audioCtx1.state === "running") {
+            // stopFireSound(fireSoundNodes);
+            fireSoundNodes = createFireSound();
             console.log("play");
         }
     }
     
-    function stopWindSound()  {
-        if (audioCtx.state === "running") {
-            stopFireSound(fireSoundNodes);
+    function stopFireSound()  {
+        if (audioCtx1.state === "running") {
+            // stopFireSound(fireSoundNodes);
+            fireSoundNodes.stop();
             fireSoundNodes = null;
             console.log("stop");
         }
     }
     
-    // function releaseAudioNodes(nodes) {
-    //     if (nodes) {
-    //         nodes.noiseSource.stop();
-    //         nodes.crackleOscillator.stop();
-    //     }
-    // }
+    
+    
+    const playButton3 = document.getElementById("playButton0");
+    const stopButton3 = document.getElementById("stopButton0");
 
-    
-    //   let windSoundNodes = null;
-    
-    //   function playWindSound() {
-    //     if (audioCtx1.state === "suspended") {
-    //         audioCtx1.resume().then(() => {
-    //             windSoundNodes = createWindSound();
-    //             console.log("play");
-    //         });
-    //     } else if (audioCtx1.state === "running") {
-    //         releaseAudioNodes(windSoundNodes);
-    //         windSoundNodes = createWindSound();
-    //         console.log("play");
-    //     }
-    // }
-    
-    // function stopWindSound() {
-    //     if (audioCtx1.state === "running") {
-    //         releaseAudioNodes(windSoundNodes);
-    //         windSoundNodes = null;
-    //         console.log("stop");
-    //     }
-    //   }
-    
-      const playButton3 = document.getElementById("playButton0");
-      const stopButton3 = document.getElementById("stopButton0");
-    
-      playButton3.addEventListener("click", playWindSound);
-      stopButton3.addEventListener("click", stopWindSound);
+    playButton3.addEventListener("click", playFireSound);
+    stopButton3.addEventListener("click", stopFireSound);
 
     
 
-    //create Running Water 
-
-    function createBilinearExponentialRandom() {
-        const randInt = Math.random() * 8192;
-        const isPositive = randInt > 4096 ? 1 : -1;
-        return (isPositive * (Math.pow((randInt / 8192), 2) * 9) / 23000);
-    }
     
-    // Function to create running water sound
-    function createRunningWaterSound() {
-        const bufferSize = audioCtx.sampleRate * 5; 
-        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-    
-        const baseFrequency = 600; 
-        const density = 200; 
-        const slewRate = 2.69; 
-    
-        let lastFrequency = baseFrequency;
-        for (let i = 0; i < bufferSize; i++) {
-            const frequencyChange = createBilinearExponentialRandom() * density;
-            lastFrequency += (frequencyChange * slewRate);
-            output[i] = Math.sin(2 * Math.PI * lastFrequency * (i / audioCtx.sampleRate));
-        }
-
-        const runningWater = audioCtx.createBufferSource();
-        runningWater.buffer = noiseBuffer;
-        runningWater.loop = true;
-        runningWater.connect(audioCtx.destination);
-        runningWater.start(0);
-   
-        return runningWater;
-    }
-
-    let runningWaterNode = null;
-
-    
-    // Function to start playing the sound
-    function playRunningWater() {
-        if (audioCtx.state === "suspended") {
-            audioCtx.resume().then(() => {
-                runningWaterNode = createRunningWaterSound();
-                console.log("play water");
-            });
-        } else if (audioCtx.state === "running") {
-            runningWaterNode = createRunningWaterSound();
-            console.log("play water");
-        }
-    }
-    
-    // Function to stop the sound (optional)
-    function stopRunningWater() {
-        if (audioCtx.state === "running") {
-            runningWaterNode.stop();
-            runningWaterNode = null;
-            console.log("stop water");
-        }
-    }
-
-
-    const playButton2 = document.getElementById('playButton1');
-    const stopButton2 = document.getElementById('stopButton2');
-    playButton2.addEventListener('click', playRunningWater);
-    stopButton2.addEventListener('click', stopRunningWater);
-
 
 }); 
+
+
+
+    
+
+
+        
