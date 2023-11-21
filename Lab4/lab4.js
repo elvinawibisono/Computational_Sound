@@ -66,7 +66,6 @@ function parseCode(code) {
     console.log(repeated_notes)
     console.log(notes)
 
-    
  
     //notice this will fail if the input is not correct
     //how could you handle this? allow some flexibility in the grammar? fail gracefully?
