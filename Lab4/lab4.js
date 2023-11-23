@@ -35,35 +35,73 @@ function parseCode(code) {
     //how does this parsing technique limit us?
     let notes = code.split(" ");
 
-    let repeated_notes = []; 
+    // let repeated_notes = []; 
+
+    // for (let i = 0; i < notes.length; i++) {
+
+    //     if (notes[i].includes('[')) {
+    //         let firstNote = notes[i].split('[');
+    //         let repeat_time = eval(firstNote[0]);
+    //         let section = Array(repeat_time).fill(firstNote[1]).join(" ");
+    //         repeated_notes.push(...section.split(" "));
+
+    //         while (i + 1 < notes.length && !notes[i + 1].includes(']')) {
+    //             i++; 
+    //             section = Array(repeat_time).fill(notes[i]).join(" ");
+    //             repeated_notes.push(...section.split(" "));
+    //         }
+
+    //         if (i + 1 < notes.length) {
+    //             let lastNote = notes[i + 1].split(']')[0];
+    //             section = Array(repeat_time).fill(lastNote).join(" ");
+    //             repeated_notes.push(...section.split(" "));
+    //         }
+    //     } else if (!notes[i].includes('[') && !notes[i].includes(']')){
+    //     // }else{
+    //         repeated_notes.push(notes[i]);
+    //     } 
+    // }
+
+    // notes = repeated_notes
+
+    let parsedNotes = [];
 
     for (let i = 0; i < notes.length; i++) {
 
         if (notes[i].includes('[')) {
+            let insideBracketNotes = [];
             let firstNote = notes[i].split('[');
-            let repeat_time = eval(firstNote[0]);
-            let section = Array(repeat_time).fill(firstNote[1]).join(" ");
-            repeated_notes.push(...section.split(" "));
+            let repeatTime = eval(firstNote[0]);
+            console.log(firstNote)
+            insideBracketNotes.push(firstNote[1]);
 
-            while (i + 1 < notes.length && !notes[i + 1].includes(']')) {
-                i++; 
-                section = Array(repeat_time).fill(notes[i]).join(" ");
-                repeated_notes.push(...section.split(" "));
+            // Parse notes inside brackets
+            
+            while (!notes[i].includes(']')) {
+                i++;
+                insideBracketNotes.push(notes[i].slice(0,-1));
+                // let section = Array(repeatTime).fill(notes[i]).join(" ");
+                // insideBracketNotes.push(...section.split(" "));
+                if(notes[i].includes(']')){
+                    insideBracketNotes.push(notes[i].slice(0,-1)); 
+                }
+    
             }
 
-            if (i + 1 < notes.length) {
-                let lastNote = notes[i + 1].split(']')[0];
-                section = Array(repeat_time).fill(lastNote).join(" ");
-                repeated_notes.push(...section.split(" "));
+            
+            // Repeat the notes inside brackets
+            for (let j = 0; j < repeatTime; j++) {
+                parsedNotes.push(...insideBracketNotes);
             }
-        } else if (!notes[i].includes('[') && !notes[i].includes(']')){
-            repeated_notes.push(notes[i]);
+        }else {
+            // Parse single note
+            parsedNotes.push(notes[i]);
         }
     }
 
-    notes = repeated_notes
+    notes = parsedNotes
 
-    console.log(repeated_notes)
+    console.log(parsedNotes)
     console.log(notes)
 
  
